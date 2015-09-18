@@ -32,26 +32,7 @@ function addAnios() {
     
 }
 
-function calCentroid(geojson) {
-    var features = [], tmp;
-    var arrayAnio = [];
 
-    for (i = 0; i < geojson.features.length; i++) {
-        tmp = turf.centroid(geojson.features[i]);
-        tmp.properties = JSON.parse(JSON.stringify(geojson.features[i].properties));
-        arrayAnio.push(geojson.features[i].properties.ANIO_REGISTRO);
-
-        tmp.properties.Nombre = getMunDto(geojson.features[i].properties.DEMANDANTE_DEPARTAMENTO, geojson.features[i].properties.DEMANDANTE_MUNICIPIO)
-        features.push(tmp);
-    }
-    glo.Anio = arrayAnio.unique();
-
-
-
-    Arraycentroid = turf.featurecollection(features);
-    addAnios();
-    return Arraycentroid;
-}
 
 function getDto(Dpto) {
     
@@ -79,9 +60,11 @@ function getMunDto(Dpto, Mun) {
 function VerLegend() {
     glo.addlegend = true;
     legend.addTo(map);
-    /*$("#valuemin").empty().append('1 ' + glo.UniMate);
-    $("#valuemax").empty().append(numeral(glo.maxDataCircle).format('0,0') + ' ' + glo.UniMate);
     $("#UniOferta").empty().append('[' + glo.UniMate + ']');
+    /*
+    $("#valuemin").empty().append('1 ' + glo.UniMate);
+    $("#valuemax").empty().append(numeral(glo.maxDataCircle).format('0,0') + ' ' + glo.UniMate);
+    
     if (glo.Anio != 0) {
         $('#LegendDemanda').show();
     } else {
@@ -191,7 +174,10 @@ function CargaOfertaDemanda() {
                     i++;
                 });
                 glo.Materiales = arrayMi.unique();
-                getUniMate(glo.Materiales[0]);
+                if (glo.Materiales.length > 0) {
+                    getUniMate(glo.Materiales[0]);
+                }
+                
 
                 //console.log("Unidad mate " + glo.UniMate);
                
@@ -214,6 +200,7 @@ function CargaOfertaDemanda() {
                     var filterOferta = turf.filter(glo.ArrayOfertas, 'FK_ID_MINERAL', parseInt(glo.Materiales[0]));
                     addOferta(filterOferta);
                     VerLegend();
+                    $('#LegendDemanda').hide();
                     waitingDialog.hide();
                     
 

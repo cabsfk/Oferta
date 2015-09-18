@@ -39,48 +39,9 @@ function selecEstudiochange() {
     glo.Anio = 0;
     CargaOfertaDemanda();
 };
-/*
-function calRadio(Arraycentroid) {
-    //console.log(glo.DEMANDA_ANIO);
-    var gmax = turf.max(glo.extend, Arraycentroid, 'DEMANDA_ANIO_' + glo.DEMANDA_ANIO, 'max');
-    glo.maxDataCircle = gmax.features[0].properties.max;
-    $("#valuemin").empty().append('1 ' + glo.UniMate);
-    $("#valuemax").empty().append(numeral(glo.maxDataCircle).format('0,0') + ' ' + glo.UniMate);
-    var pixel = 20;
-    var Dem = turf.filter(glo.ArrayOfertasMun, 'FK_ID_MINERAL', parseInt($("#selecMineral").val()));
-    for (i = 0; i < Arraycentroid.features.length; i++) {
-        Arraycentroid.features[i].properties.RADIO = ((Arraycentroid.features[i].properties["DEMANDA_ANIO_" + glo.DEMANDA_ANIO] * pixel) / glo.maxDataCircle);
-        var DemDep = turf.filter(Dem, 'FK_ID_DEPARTAMENTO', Arraycentroid.features[i].properties.DEMANDANTE_DEPARTAMENTO);
-        if (DemDep.features.length > 0) {
-            var DemMun = turf.filter(DemDep, 'FK_ID_MUNICIPIO', Arraycentroid.features[i].properties.DEMANDANTE_MUNICIPIO);
-            if (DemMun.features.length > 0) {
-                Arraycentroid.features[i].properties.ProMun = DemMun.features[0].properties.PRODUCCION;
-            } else {
-                Arraycentroid.features[i].properties.ProMun = 0;
-            }
-        } else {
-            Arraycentroid.features[i].properties.ProMun = 0;
-        }
-        
-    }
-    //console.log(Arraycentroid);
-    return Arraycentroid;
-}
-function styleCircle(feature) {
-    var color;
-    if (feature.properties.ProMun > feature.properties["DEMANDA_ANIO_" + glo.DEMANDA_ANIO]) {
-        color = "rgb(82,168,131)"
-    } else {color = "red" }
-    return {
-        radius: feature.properties.RADIO,
-        fillColor: color,
-        color: "white",
-        weight: 2,
-        opacity: 1,
-        fillOpacity: 1
-    };
-}
 
+
+/*
 function resetMapa() {
     $("#panel_superDerecho").hide();
     if (glo.layerStyle != "") {
@@ -250,44 +211,8 @@ function graficarDemandaMun(nomGraficaDemanda, dataGraficaDemanda, dataGraficaPr
         });
     }
 };
+*/
 
-function addCentroid(Arraycentroid) {
-    
-    Arraycentroid=calRadio(Arraycentroid);
-    if (map.hasLayer(glo.lyrMate)) {
-        map.removeLayer(glo.lyrMate);
-    }
-    var dataGraficaDemanda = [], nomGraficaDemanda = [],dataGraficaProduccion = [];
-    if (map.hasLayer(glo.lyrMate)) {
-        map.removeLayer(glo.lyrMate);
-    }
-    glo.lyrMate = L.geoJson(Arraycentroid, {
-        onEachFeature: function (feature, layer) {
-            layer.on({
-                click: clickToFeature
-            });
-        },
-        style: styleCircle,
-        pointToLayer: function (feature, latlng) {
-            //console.log(feature.properties.RADIO);
-            var circle = L.circleMarker(latlng, styleCircle);
-            var textlabel = '<center><b>DEMANDA</b></center>' +
-                '<h6>' + feature.properties["Nombre"] + '</h6>' +
-                '<small class="text-muted">Cantidad Demandada:</small> '+numeral(feature.properties["DEMANDA_ANIO_" + glo.DEMANDA_ANIO]).format('0,0') + ' ' + glo.UniMate +
-                '<br><small class="text-muted">Cantidad Producida:</small> '+numeral(feature.properties.ProMun).format('0,0') + ' ' + glo.UniMate ;
-            dataGraficaDemanda.push(feature.properties["DEMANDA_ANIO_" + glo.DEMANDA_ANIO]);
-            dataGraficaProduccion.push(feature.properties.ProMun);
-            nomGraficaDemanda.push(feature.properties["Nombre"]);
-            circle.bindLabel(textlabel, { 'noHide': false });
-
-            return circle
-        }
-    });
-    glo.lyrMate.addTo(map).bringToFront();
-
-    graficarDemandaMun(nomGraficaDemanda, dataGraficaDemanda, dataGraficaProduccion);
-    controlcapas();
-}*/
 
 
 /*************************
@@ -315,7 +240,7 @@ function onEachOferta(feature, layer) {
         '<h6>' + nombre + '</h6>';
     var htmlmapeo;
     if (glo.varMapeo == 'ProAct_sum') {
-        htmlmapeo = '<small class="text-muted">Produccion Actual:</small> ' +
+        htmlmapeo = '<small class="text-muted">Produccion:</small> ' +
              numeral(feature.properties["ProAct_sum"]).format('0,0') + ' ' + glo.UniMate;
     } else {
         htmlmapeo = '<small class="text-muted">Oferta Instalada:</small> ' +
@@ -412,13 +337,15 @@ function calEstadisticasMun(polygons, points, vec,filtro) {
         //if (value == '66') { console.log(filterOferta);}
         var aggregated = turf.aggregate(glo.extend, filterOferta, glo.aggregations);
         var filter = turf.filter(polygons, filtro[1], value);
-        
         filter.features[0].properties.capInst_sum = aggregated.features[0].properties.capInst_sum
-        filter.features[0].properties.numEmp_sum=aggregated.features[0].properties.numEmp_sum
-        filter.features[0].properties.CosPro_avg=aggregated.features[0].properties.CosPro_avg
-        filter.features[0].properties.ProAct_sum=aggregated.features[0].properties.ProAct_sum
-        filter.features[0].properties.PreVen_avg=aggregated.features[0].properties.PreVen_avg
-        filter.features[0].properties.point_count=aggregated.features[0].properties.point_count
+        filter.features[0].properties.point_count = aggregated.features[0].properties.point_count
+        filter.features[0].properties.ProAct_sum = aggregated.features[0].properties.ProAct_sum
+        filter.features[0].properties.PreVen_avg = aggregated.features[0].properties.PreVen_avg
+        filter.features[0].properties.numEmp_sum = aggregated.features[0].properties.numEmp_sum
+        filter.features[0].properties.Num_UPM = aggregated.features[0].properties.Num_UPM
+        filter.features[0].properties.CosPro_avg = aggregated.features[0].properties.CosPro_avg
+        filter.features[0].properties.CosAgua_sum = aggregated.features[0].properties.CosAgua_sum
+        filter.features[0].properties.ConEnergia_sum = aggregated.features[0].properties.ConEnergia_sum
         arraymun.push(JSON.parse(JSON.stringify(filter.features[0])));
         //console.log(filter.features[0]);
         ListBusquedaMunDpto(filter.features[0]);
@@ -473,8 +400,142 @@ function calEstadisticasMun(polygons, points, vec,filtro) {
     return fc;
 }
 
+function calCentroid(geojson) {
+    var features = [], tmp;
+    var ProAct_sum = [], numEmp_sum = [], Num_UPM = [], CosPro_avg = [], CosAgua_sum = [], ConEnergia_sum = [];
+    
+    for (i = 0; i < geojson.features.length; i++) {
+        tmp = turf.centroid(geojson.features[i]);
+        tmp.properties = JSON.parse(JSON.stringify(geojson.features[i].properties));
+        ProAct_sum.push(geojson.features[i].properties.ProAct_sum);
+        numEmp_sum.push(geojson.features[i].properties.numEmp_sum);
+        Num_UPM.push(geojson.features[i].properties.Num_UPM);
+        CosPro_avg.push(geojson.features[i].properties.CosPro_avg);
+        CosAgua_sum.push(geojson.features[i].properties.CosAgua_sum);
+        ConEnergia_sum.push(geojson.features[i].properties.ConEnergia_sum);
+        
+        //tmp.properties.Nombre = getMunDto(geojson.features[i].properties.DEMANDANTE_DEPARTAMENTO, geojson.features[i].properties.DEMANDANTE_MUNICIPIO)
+        features.push(tmp);
+    }
+    $('#selecBubles').empty();
+    
+    $('#selecBubles').append('<option value="" selected>Ninguna </option>');
+    ProAct_sum = ProAct_sum.unique();
+    glo.bubleMax = [];
+    if (ProAct_sum.max()!= 0){ 
+        $('#selecBubles').append('<option value="ProAct_sum" >Oferta</option>');
+        glo.bubleMax["ProAct_sum"] = ProAct_sum.max();
+    }
+    
+    numEmp_sum = numEmp_sum.unique();    
+    if (numEmp_sum.max() != 0) {
+        $('#selecBubles').append('<option value="numEmp_sum" >Numero de empleados </option>');
+        glo.bubleMax["numEmp_sum"] = numEmp_sum.max();
+    }
+
+    Num_UPM = Num_UPM.unique();
+    console.log('Num_UPM');
+    console.log(Num_UPM);
+    if (Num_UPM.max() != 0) {
+        $('#selecBubles').append('<option value="Num_UPM" >Numero de UPM </option>');
+        glo.bubleMax["Num_UPM"] = Num_UPM.max();
+        console.log(glo.bubleMax["Num_UPM"]);
+    }
+    CosPro_avg = CosPro_avg.unique();    
+    if (CosPro_avg.max() != 0) {
+        $('#selecBubles').append('<option value="CosPro_avg" >Costos promedio al anio de exploracion [$/unidad del mineral] </option>');
+        glo.bubleMax["CosPro_avg"] = CosPro_avg.max();
+    }
+
+    CosAgua_sum = CosAgua_sum.unique();    
+    if (CosAgua_sum.max() != 0) {
+        $('#selecBubles').append('<option value="CosAgua_sum" > Consumo de agua [M3/años]</option>');
+        glo.bubleMax["CosAgua_sum"] = CosAgua_sum.max();
+    }
+
+    ConEnergia_sum = ConEnergia_sum.unique();
+    if (ConEnergia_sum.max() != 0) {
+        $('#selecBubles').append('<option value="ConEnergia_sum" >Consumo de energia electrica [kWH/ano] </option>');
+        glo.bubleMax["ConEnergia_sum"] = ConEnergia_sum.max();
+    }
+
+    Arraycentroid = turf.featurecollection(features);
+    return Arraycentroid;
+}
+
+function calRadio(Arraycentroid) {
+
+    var Buble = $('#selecBubles').val();
+    console.log(Buble);
+    console.log(glo.bubleMax);
+    glo.maxDataCircle = glo.bubleMax[Buble];
+    $("#tituloBubbles").empty().append($('#selecBubles option:selected').text());
+    $("#valuemin").empty().append('1 ' );
+    $("#valuemax").empty().append(numeral(glo.maxDataCircle).format('0,0'));
+    var pixel = 20;
+    console.log(glo.maxDataCircle);
+    for (i = 0; i < Arraycentroid.features.length; i++) {
+        Arraycentroid.features[i].properties.RADIO = ((Arraycentroid.features[i].properties[Buble] * pixel) / glo.maxDataCircle);
+    }
+    console.log(Arraycentroid);
+    return Arraycentroid;
+}
 
 
+function styleCircle(feature) {
+
+    return {
+        radius: feature.properties.RADIO,
+        fillColor: "rgba(8,41,138,0.5)",
+        color: "white",
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 1
+    };
+}
+
+function addCentroid(Arraycentroid) {
+
+    if (map.hasLayer(glo.lyrMate)) {
+        map.removeLayer(glo.lyrMate);
+    }
+
+    glo.lyrMate = L.geoJson(Arraycentroid, {
+        /*onEachFeature: function (feature, layer) {
+            layer.on({
+            });
+        },*/
+        style: styleCircle,
+        pointToLayer: function (feature, latlng) {
+            //console.log(feature.properties.RADIO);
+            var circle = L.circleMarker(latlng, styleCircle);
+            /*var textlabel = '<center><b>DEMANDA</b></center>' +
+                '<h6>' + feature.properties["Nombre"] + '</h6>' +
+                '<small class="text-muted">Cantidad Demandada:</small> ' + numeral(feature.properties["DEMANDA_ANIO_" + glo.DEMANDA_ANIO]).format('0,0') + ' ' + glo.UniMate +
+                '<br><small class="text-muted">Cantidad Producida:</small> ' + numeral(feature.properties.ProMun).format('0,0') + ' ' + glo.UniMate;
+            dataGraficaDemanda.push(feature.properties["DEMANDA_ANIO_" + glo.DEMANDA_ANIO]);
+            dataGraficaProduccion.push(feature.properties.ProMun);
+            nomGraficaDemanda.push(feature.properties["Nombre"]);
+            circle.bindLabel(textlabel, { 'noHide': false });*/
+            return circle;
+        }
+    });
+    glo.lyrMate.addTo(map).bringToFront();
+
+   
+}
+$("#selecBubles").change(function () {
+ if ($('#selecBubles').val() != '') {
+        glo.Arraycentroid = calRadio(glo.Arraycentroid);
+        addCentroid(glo.Arraycentroid)
+        $('#LegendDemanda').show();
+ } else {
+     if (map.hasLayer(glo.lyrMate)) {
+         map.removeLayer(glo.lyrMate);
+     }
+     $('#LegendDemanda').hide();
+ }
+});
 function addOferta(filterOferta) {
     var aggregados = '';
     if (map.hasLayer(glo.lyrBaseMunDpto)) {
@@ -486,7 +547,20 @@ function addOferta(filterOferta) {
         glo.lyrBaseMunDpto = L.geoJson(glo.jsonMun, {
             style: stylePoly
         }).addTo(map);
-        aggregados = calEstadisticasMun(glo.jsonMun, filterOferta, idMun,['DPTOMUN','MPIO_CCNCT']);
+        aggregados = calEstadisticasMun(glo.jsonMun, filterOferta, idMun, ['DPTOMUN', 'MPIO_CCNCT']);
+        glo.Arraycentroid = calCentroid(aggregados);
+        $('#selecBubles').val('');
+        if (map.hasLayer(glo.lyrMate)) {
+            map.removeLayer(glo.lyrMate);
+        }
+        $('#LegendDemanda').hide();
+        if ($('#selecBubles').val() != '') {
+            glo.Arraycentroid = calRadio(glo.Arraycentroid);
+            addCentroid(glo.Arraycentroid)
+            $('#LegendDemanda').show();
+        } else {
+            $('#LegendDemanda').hide();
+        }
         
     } else if ($("#selecEscala").val() == "Departamento") {
         var idMunDpt = getIDMunDpt(filterOferta);
@@ -494,7 +568,20 @@ function addOferta(filterOferta) {
         glo.lyrBaseMunDpto = L.geoJson(glo.jsonDto, {
             style: stylePoly
         }).addTo(map);
-        aggregados = calEstadisticasMun(glo.jsonDto, filterOferta, idDpto,['ID_DEPARTAMENTO','CODIGO_DEP'] );
+        aggregados = calEstadisticasMun(glo.jsonDto, filterOferta, idDpto, ['ID_DEPARTAMENTO', 'CODIGO_DEP']);
+        glo.Arraycentroid = calCentroid(aggregados);
+        $('#selecBubles').val('');
+        if (map.hasLayer(glo.lyrMate)) {
+            map.removeLayer(glo.lyrMate);
+        }
+        $('#LegendDemanda').hide();
+        if ($('#selecBubles').val() != '') {
+            glo.Arraycentroid = calRadio(glo.Arraycentroid);
+            addCentroid(glo.Arraycentroid)
+            $('#LegendDemanda').show();
+        } else {
+            $('#LegendDemanda').hide();            
+        }
     }
     
     

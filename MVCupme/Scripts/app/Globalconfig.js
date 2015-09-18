@@ -82,17 +82,12 @@ var glo = {
             aggregation: 'sum',
             inField: 'CAPACIDAD_INSTALADA',
             outField: 'capInst_sum'
-          },
-          {
-              aggregation: 'sum',
-              inField: 'NUMERO_EMPLEADOS',
-              outField: 'numEmp_sum'
-          },
-          {
-              aggregation: 'average',
-              inField: 'COSTO_PRODUCCION',
-              outField: 'CosPro_avg'
-          },
+         },
+            {
+                aggregation: 'count',
+                inField: '',
+                outField: 'point_count'
+            },
           {
               aggregation: 'sum',
               inField: 'PRODUCCION_ACTUAL',
@@ -103,16 +98,37 @@ var glo = {
               inField: 'PRECIO_VENTA',
               outField: 'PreVen_avg'
           },
-          {
-              aggregation: 'count',
-              inField: '',
-              outField: 'point_count'
-          }
+           {
+              aggregation: 'sum',
+              inField: 'NUMERO_EMPLEADOS',
+              outField: 'numEmp_sum'
+            },
+            {
+                aggregation: 'count',
+                inField: '',
+                outField: 'Num_UPM'
+            },
+            {
+                aggregation: 'average',
+                inField: 'COSTO_PRODUCCION',
+                outField: 'CosPro_avg'
+            },
+            {
+                aggregation: 'sum',
+                inField: 'CONSUMO_AGUA',
+                outField: 'CosAgua_sum'
+            },
+            {
+                aggregation: 'sum',
+                inField: 'CONSUMO_ENERGIA',
+                outField: 'ConEnergia_sum'
+            }
     ],
     panelOferta:true,
     listDtoMun: '',
     varMapeo: 'ProAct_sum',
-    arrayHtmlEst:[]
+    arrayHtmlEst:[],
+    bubleMax:[]
 }
 
 /***********************************
@@ -155,19 +171,15 @@ legend.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'info legend');
        
     div.innerHTML +=
-        '<div id="LegendDemanda"><svg height="140" width="160" >' +
-        '<rect x="1" y="1" width="160" height="140" fill="rgba(220,220,220,0.3)" />'+
-        '<text x="45" y="15" fill="black"  font-weight = "bold">Demanda</text>'+
-            '<rect x="40" y="26"  width="15" height="15" style="fill:red" />'+
-            '<text x="65" y="40" fill="black"  >Déficit</text>'+
-            '<rect x="40" y="46"  width="15" height="15" style="fill:rgb(82,168,131)" />'+
-            '<text x="65" y="59" fill="black"  >Superávit</text>'+
-            '<circle cx="20" cy="90" r="5" stroke="white" stroke-width="3"  fill="rgb(220,220,220)" />'+
-            '<circle cx="40" cy="90" r="10" stroke="white" stroke-width="3" fill="rgb(220,220,220)" />'+
-            '<circle cx="70" cy="90" r="15" stroke="white" stroke-width="3" fill="rgb(220,220,220)" />'+
-            '<circle cx="115" cy="90" r="20" stroke="white" stroke-width="3" fill="rgb(220,220,220)" />'+
-            '<text x="0" y="130" fill="black" id="valuemin">1</text>'+
-            '<text x="68" y="130" fill="black" id="valuemax"></text>'+
+        '<div id="LegendDemanda"><svg height="100" width="160" >' +
+        '<rect x="1" y="1" width="160" height="100" fill="rgba(220,220,220,0.3)" />'+
+        '<text x="5" y="15" fill="black"  font-weight = "bold" id="tituloBubbles"></text>'+
+            '<circle cx="20" cy="60" r="5" stroke="white" stroke-width="3"  fill="rgba(8,41,138,0.5)" />' +
+            '<circle cx="40" cy="60" r="10" stroke="white" stroke-width="3" fill="rgba(8,41,138,0.5)" />' +
+            '<circle cx="70" cy="60" r="15" stroke="white" stroke-width="3" fill="rgba(8,41,138,0.5)" />' +
+            '<circle cx="115" cy="60" r="20" stroke="white" stroke-width="3" fill="rgba(8,41,138,0.5)" />' +
+            '<text x="20" y="100" fill="black" id="valuemin">1</text>'+
+            '<text x="90" y="100" fill="black" id="valuemax"></text>'+
             '</svg><hr></div>';
 
      labels = [];
@@ -233,6 +245,14 @@ $(window).resize(function () {
     map.invalidateSize();
 });
 
+
+Array.prototype.max = function () {
+    return Math.max.apply(null, this);
+};
+
+Array.prototype.min = function () {
+    return Math.min.apply(null, this);
+};
 /*********************************
 //CAPAS BASE 
 **********************************/
