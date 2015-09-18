@@ -21,10 +21,10 @@ function getParametroFilter() {
 
 $("#selecMineral").change(function () {
     getUniMate($("#selecMineral").val());
-    var filteredDemanda = turf.filter(glo.Arraycentroid, 'MINERAL', $("#selecMineral").val());
+    //var filteredDemanda = turf.filter(glo.Arraycentroid, 'MINERAL', $("#selecMineral").val());
     $('#tituloMineral').empty().append(glo.textMineral[$("#selecMineral").val()]);
-    resetMapa();
-    addCentroid(filteredDemanda);
+    //resetMapa();
+    //addCentroid(filteredDemanda);
     getParametroFilter();
 });
 
@@ -39,7 +39,7 @@ function selecEstudiochange() {
     glo.Anio = 0;
     CargaOfertaDemanda();
 };
-
+/*
 function calRadio(Arraycentroid) {
     //console.log(glo.DEMANDA_ANIO);
     var gmax = turf.max(glo.extend, Arraycentroid, 'DEMANDA_ANIO_' + glo.DEMANDA_ANIO, 'max');
@@ -159,18 +159,7 @@ function BarsDemanda(properties) {
                 
             ],
             dataLabels: {
-                enabled: false/*,
-                rotation: -90,
-                color: '#FFFFFF',
-                align: 'right',
-                y: 10, // 10 pixels down from the top
-                formatter: function () {
-                    return numeral(this.y).format('0,0');
-                },
-                style: {
-                    fontSize: '10px',
-                    fontFamily: 'Verdana, sans-serif'
-                }*/
+                enabled: false
             }
         }], 
          exporting: {
@@ -236,9 +225,6 @@ function graficarDemandaMun(nomGraficaDemanda, dataGraficaDemanda, dataGraficaPr
                     overflow: 'justify'
                 }
             },
-            /*tooltip: {
-                valueSuffix: ' millions'
-            },*/
             plotOptions: {
                 bar: {
                     dataLabels: {
@@ -301,7 +287,7 @@ function addCentroid(Arraycentroid) {
 
     graficarDemandaMun(nomGraficaDemanda, dataGraficaDemanda, dataGraficaProduccion);
     controlcapas();
-}
+}*/
 
 
 /*************************
@@ -325,17 +311,17 @@ function onEachOferta(feature, layer) {
                  numeral(feature.properties["PreVen_avg"]).format('0,0') + ' $/' + glo.UniMate;
     }
         
-    var textlabel = '<center><b>OFERTA</b></center>'+
-        '<h6>' + nombre + '</h6>' +
-        '<small class="text-muted">Produccion Actual:</small> ' +
-             numeral(feature.properties["ProAct_sum"]).format('0,0') + ' ' + glo.UniMate+
-        '<br><small class="text-muted">Numero Empleados:</small> ' +
-         numeral(feature.properties["numEmp_sum"]).format('0,0')+
-        textProme+
-        '<br><small class="text-muted">Cantidad UPM:</small> ' +
-                 numeral(feature.properties["point_count"]).format('0,0');
-
-
+    var textlabel = '<center><b>OFERTA</b></center>' +
+        '<h6>' + nombre + '</h6>';
+    var htmlmapeo;
+    if (glo.varMapeo == 'ProAct_sum') {
+        htmlmapeo = '<small class="text-muted">Produccion Actual:</small> ' +
+             numeral(feature.properties["ProAct_sum"]).format('0,0') + ' ' + glo.UniMate;
+    } else {
+        htmlmapeo = '<small class="text-muted">Oferta Instalada:</small> ' +
+                 numeral(feature.properties["capInst_sum"]).format('0,0') + ' ' + glo.UniMate;
+    }
+    textlabel = textlabel + htmlmapeo;
     layer.bindLabel( textlabel,{ 'noHide': true });
 }
 function styleDptoOfer(feature) {
@@ -344,7 +330,7 @@ function styleDptoOfer(feature) {
         color: 'white',
         dashArray: '3',
         fillOpacity: 0.8,
-        fillColor: getColor(feature.properties.ProAct_sum),
+        fillColor: getColor(feature.properties[glo.varMapeo]),
     };
 };
 function stylePoly(feature) {
@@ -426,13 +412,15 @@ function calEstadisticasMun(polygons, points, vec,filtro) {
         //if (value == '66') { console.log(filterOferta);}
         var aggregated = turf.aggregate(glo.extend, filterOferta, glo.aggregations);
         var filter = turf.filter(polygons, filtro[1], value);
+        
+        filter.features[0].properties.capInst_sum = aggregated.features[0].properties.capInst_sum
         filter.features[0].properties.numEmp_sum=aggregated.features[0].properties.numEmp_sum
         filter.features[0].properties.CosPro_avg=aggregated.features[0].properties.CosPro_avg
         filter.features[0].properties.ProAct_sum=aggregated.features[0].properties.ProAct_sum
         filter.features[0].properties.PreVen_avg=aggregated.features[0].properties.PreVen_avg
         filter.features[0].properties.point_count=aggregated.features[0].properties.point_count
         arraymun.push(JSON.parse(JSON.stringify(filter.features[0])));
-        console.log(filter.features[0]);
+        //console.log(filter.features[0]);
         ListBusquedaMunDpto(filter.features[0]);
     });
     
@@ -451,15 +439,14 @@ function calEstadisticasMun(polygons, points, vec,filtro) {
         }
     });;
 
-    var removeAggregated = turf.remove(fc, 'ProAct_sum', 0);
-    //console.log('removeAggregated');
-    //console.log(removeAggregated);
+    var removeAggregated = turf.remove(fc, glo.varMapeo, 0);
+
     if (removeAggregated.features.length > 0) {
         //console.log(removeAggregated);
         if (removeAggregated.features.length > 5) {
-            glo.breaks = turf.jenks(removeAggregated, 'ProAct_sum', 5);
+            glo.breaks = turf.jenks(removeAggregated,  glo.varMapeo, 5);
         } else {
-            glo.breaks = turf.jenks(removeAggregated, 'ProAct_sum', removeAggregated.features.length - 1);
+            glo.breaks = turf.jenks(removeAggregated,  glo.varMapeo, removeAggregated.features.length - 1);
         }
         glo.breaks = glo.breaks.unique();
         if (glo.breaks != null) {
@@ -525,14 +512,14 @@ function addOferta(filterOferta) {
     if (map.hasLayer(glo.lyrBaseMunDpto)) {
         glo.lyrBaseMunDpto.bringToBack();
     }
-    controlcapas();
+    //controlcapas();
 }
 
-map.on('overlayadd', function (eventLayer) {
+/*map.on('overlayadd', function (eventLayer) {
     if (eventLayer.name === 'Demanda') {
         glo.lyrMate.bringToFront();
     }
     if (eventLayer.name === 'Oferta' ) {
         glo.lyrMate.bringToFront();
     }
-});
+});*/

@@ -50,6 +50,8 @@ var glo = {
     breaks:'',
     textMineral: "",
     listEstudio: "",
+    listEstudio: "",
+    listEstudioAnio: "",
     jsonMun: "",
     jsonMunFil: "",
     jsonDto:"",
@@ -75,7 +77,12 @@ var glo = {
           }]
     },
     addlegend:false,
-    aggregations:[
+    aggregations: [
+         {
+            aggregation: 'sum',
+            inField: 'CAPACIDAD_INSTALADA',
+            outField: 'capInst_sum'
+          },
           {
               aggregation: 'sum',
               inField: 'NUMERO_EMPLEADOS',
@@ -103,7 +110,9 @@ var glo = {
           }
     ],
     panelOferta:true,
-    listDtoMun:'',
+    listDtoMun: '',
+    varMapeo: 'ProAct_sum',
+    arrayHtmlEst:[]
 }
 
 /***********************************
@@ -216,11 +225,11 @@ Array.prototype.unique = function (a) {
 });
 
 $('#PanelOfertaMap,#PanelProyOferta').css('height', ($(window).height() - 50) + 'px');
-$('#ListaEstudios').css('max-height', ($(window).height() - 150) + 'px');
+$('#ListaEstudios').css('max-height', ($(window).height() - 250) + 'px');
 map.invalidateSize();
 $(window).resize(function () {
     $('#PanelOfertaMap,#PanelProyOferta').css('height', ($(window).height() - 50) + 'px');
-    $('#ListaEstudios').css('max-height', ($(window).height() - 150) + 'px');
+    $('#ListaEstudios').css('max-height', ($(window).height() - 250) + 'px');
     map.invalidateSize();
 });
 
@@ -347,51 +356,45 @@ var query_Estudio = L.esri.Tasks.query({
 });
 
 
-function clicklistaestudio(IdEstudio) {
+function styleEstudio(IdEstudio) {
     $('#selecEstudio').val(IdEstudio);
     $('#ListaEstudios .clearfix').removeClass('active');
     $('#Estudio' + IdEstudio).addClass('active');
     $('#tituloEstudio').empty().append(glo.listEstudio[IdEstudio]);
+}
+
+function clicklistaestudio(IdEstudio) {
+    styleEstudio(IdEstudio);
     selecEstudiochange();
     
 }
 query_Estudio.where("1='1'").returnGeometry(false).run(function (error, featureCollection) {
-    var data = [], active='';
+    var data = [], data2 = [], active = '';
    // $("#selecEstudio").append('<option value="" > </option>');
     $.each(featureCollection.features.reverse(), function (index, value) {
         data[value.properties.ID_ESTUDIO] = value.properties.NOMBRE + ' ( ' + value.properties.ANIO + ' ) ';
+        data2[value.properties.ID_ESTUDIO] =  value.properties.ANIO ;
         if ((featureCollection.features.length) == (index+1)) {
-            $("#selecEstudio").append('<option value="' + value.properties.ID_ESTUDIO + '" selected >' + value.properties.ID_ESTUDIO + '. ' + value.properties.NOMBRE.substring(0, 150) + '... ( ' + value.properties.ANIO + ' ) ' + '</option>');
+            $("#selecEstudio").append('<option value="' + value.properties.ID_ESTUDIO + '" selected >' + value.properties.ID_ESTUDIO + '. ' + value.properties.NOMBRE.substring(0, 250) + '... ( ' + value.properties.ANIO + ' ) ' + '</option>');
             active = 'active';
+            $('#tituloEstudio').empty().append(value.properties.ID_ESTUDIO + '. ' + value.properties.NOMBRE.substring(0, 250) + ' ( ' + value.properties.ANIO + ' ) ');
         } else {
-            $("#selecEstudio").append('<option value="' + value.properties.ID_ESTUDIO + '" >' + value.properties.ID_ESTUDIO + '. ' + value.properties.NOMBRE.substring(0, 150) + '... ( ' + value.properties.ANIO + ' ) ' + '</option>');
+            $("#selecEstudio").append('<option value="' + value.properties.ID_ESTUDIO + '" >' + value.properties.ID_ESTUDIO + '. ' + value.properties.NOMBRE.substring(0, 250) + '... ( ' + value.properties.ANIO + ' ) ' + '</option>');
         }
         
-        $("#ListaEstudios .chat").prepend(
-        
-            '<li class="left">' +
+        glo.arrayHtmlEst[value.properties.ID_ESTUDIO] ='<li class="left">' +
                        '<div id="Estudio' + value.properties.ID_ESTUDIO +
                        '" class="clearfix ' + active + '" onclick="clicklistaestudio(' + value.properties.ID_ESTUDIO + ')">' +
                            '<h5>' +
                               value.properties.ID_ESTUDIO + '. ' + value.properties.NOMBRE + ' ( ' + value.properties.ANIO + ' ) '
                                  + '</h5>' +
                         '</div>' +
-                  '</li>'
-           );
+                  '</li>';
         active = '';
     });
-    $('#ListaEstudios').searchable({
-        searchField: '#searchEstudio',
-        selector: 'li',
-        childSelector: '.clearfix',
-        show: function (elem) {
-            elem.slideDown(100);
-        },
-        hide: function (elem) {
-            elem.slideUp(100);
-        }
-    });
+    
     glo.listEstudio = data;
+    glo.listEstudioAnio = data2;
 });
 
 
