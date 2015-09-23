@@ -21,10 +21,7 @@ function getParametroFilter() {
 
 $("#selecMineral").change(function () {
     getUniMate($("#selecMineral").val());
-    //var filteredDemanda = turf.filter(glo.Arraycentroid, 'MINERAL', $("#selecMineral").val());
     $('#tituloMineral').empty().append(glo.textMineral[$("#selecMineral").val()]);
-    //resetMapa();
-    //addCentroid(filteredDemanda);
     getParametroFilter();
 });
 
@@ -52,83 +49,6 @@ $("#closePanelDem").click(function () {
     resetMapa();
 });
 
-function BarsDemanda(properties) {
-    var Num = parseInt(properties.ANIO_REGISTRO);
-    $('#containerDemanda').highcharts({
-        chart: {
-            height: 300,
-            marginTop: 60,
-            type: 'column'
-        },
-        title: {
-            text: 'Demanda Proyectada'  
-        },
-        subtitle: {
-            text: properties.Nombre
-        },
-        credits: {
-            text: 'Mineria-UPME',
-            href: 'http://www.upme.gov.co'
-        },
-        xAxis: {
-            type: 'category',
-            labels: {
-                rotation: -45,
-                style: {
-                    fontSize: '9px',
-                    fontFamily: 'Verdana, sans-serif'
-                }
-            }
-        },
-        yAxis: {
-            min: 0,
-            title: {
-                text: ''
-            }
-        },
-        legend: {
-            enabled: false
-        },
-        tooltip: {
-            formatter: function () {
-                return 'Demanda en ' + this.key + ':<br> <b>' +numeral(this.y).format('0,0')+ ' </b>';
-            }
-        },
-        plotOptions: {
-            column: {
-                grouping: true,
-                shadow: true,
-                borderWidth: 0,
-                pointPadding: 0,
-                pointPlacement: -0.2
-
-            }
-        },
-        series: [{
-            name: 'Demanda',
-            data: [
-                [Num, properties.DEMANDA_ANIO_0],
-                [Num + 1, properties.DEMANDA_ANIO_1],
-                [Num + 2, properties.DEMANDA_ANIO_2],
-                [Num + 3, properties.DEMANDA_ANIO_3],
-                [Num + 4, properties.DEMANDA_ANIO_4],
-                [Num + 5, properties.DEMANDA_ANIO_5],
-                [Num + 6, properties.DEMANDA_ANIO_6],
-                [Num + 7, properties.DEMANDA_ANIO_7],
-                [Num + 8, properties.DEMANDA_ANIO_8],
-                [Num + 9, properties.DEMANDA_ANIO_9]
-                
-            ],
-            dataLabels: {
-                enabled: false
-            }
-        }], 
-         exporting: {
-            filename: 'Demanda-Proyectada'
-        }
-    });
-
-}
 
 
 function clickToFeature(e) {
@@ -156,22 +76,50 @@ function clickToFeature(e) {
         glo.layerStyle.bringToFront();
     }
 }
+*/
 
-function graficarDemandaMun(nomGraficaDemanda, dataGraficaDemanda, dataGraficaProduccion) {
-    $('#GraficaDemanda').empty();
-    if (glo.Anio != 0) {
-        $('#GraficaDemanda').highcharts({
+function setParametroGrafica(geojson) {
+    var nombre = '';
+    if (geojson.features[0].properties.MPIO_CCNCT == undefined) {
+        nombre = "NOMBRE";
+    } else {
+        nombre = "MPIO_CNMBR";
+    }    
+    var dataGraficaOferta = [], nomGraficaOferta = [];
+    var data = [];
+    for (i = 0; i < geojson.features.length; i++) {
+        data.push( { 'name': geojson.features[i].properties[nombre], 'item': geojson.features[i].properties[glo.varMapeo]});
+    }
+    data = sortByKey(data, 'item');
+    for (i = 0; i < data.length; i++) {
+        dataGraficaOferta.push(data[i].item);
+        nomGraficaOferta.push(data[i].name);
+    }
+    var titulo = '';
+    if( glo.varMapeo=='ProAct_sum'){
+        titulo = 'Información relacionada con la oferta identificada por el estudio por ' + $('#selecEscala  option:selected').text();
+    } else if (glo.varMapeo == 'capInst_sum') {
+        titulo = 'Información relacionada con la oferta Instalada identificada por el estudio por ' + $('#selecEscala  option:selected').text();
+    }
+    var subtitulo = '';
+    subtitulo = $("#selecMineral   option:selected").text() + "<br>Año " + parseInt(glo.Anio);
+    graficarOferta(dataGraficaOferta, nomGraficaOferta, titulo, subtitulo);
+}
+function graficarOferta(dataGraficaOferta, nomGraficaOferta,titulo,subtitulo) {
+    $('#GraficaGlobal').empty();
+      $('#GraficaGlobal').highcharts({
             chart: {
-                type: 'bar'
+                type: 'bar',
+                height: 30 * dataGraficaOferta.length+180
             },
             title: {
-                text: 'Demanda'
-            },
-            subtitle: {
                 text: ''
             },
+            subtitle: {
+                text: titulo+"<br>"+subtitulo
+            },
             xAxis: {
-                categories: nomGraficaDemanda,
+                categories: nomGraficaOferta.reverse(),
                 title: {
                     text: null
                 }
@@ -179,39 +127,45 @@ function graficarDemandaMun(nomGraficaDemanda, dataGraficaDemanda, dataGraficaPr
             yAxis: {
                 min: 0,
                 title: {
-                    text: 'Cantidad',
-                    align: 'high'
+                    text: '',
+                    align: ''
                 },
                 labels: {
                     overflow: 'justify'
                 }
-            },
+            },tooltip: {
+                pointFormat: '<b>{point.y} ' + glo.UniMate + '</b>',
+            }				
+            ,
             plotOptions: {
-                bar: {
-                    dataLabels: {
-                        enabled: false
-                    }
-                }
+                    bar:
+						{
+						    allowPointSelect: true,
+						    cursor: 'pointer',
+						    dataLabels: {
+						        enabled: false,
+						    }
+						, showInLegend: false
+						}
+                
             },
             credits: {
                 text: 'Mineria-UPME',
                 href: 'http://www.upme.gov.co'
             },
             series: [{
-                name: 'Demanda',
-                data: dataGraficaDemanda
-            }, {
-                name: 'Produccion',
-                data: dataGraficaProduccion
+                name:'-',
+                data: dataGraficaOferta.reverse(),
+                color: '#044D91'
             }
             ],
             exporting: {
                 filename: 'Demanda por Sitio'
             }
         });
-    }
+    
 };
-*/
+
 
 
 
@@ -251,8 +205,8 @@ function onEachOferta(feature, layer) {
 }
 function styleDptoOfer(feature) {
     return {
-        weight: 1.5,
-        color: 'white',
+        weight: 1.7,
+        color: 'rgba(255,255,255,0.3)',
         dashArray: '3',
         fillOpacity: 0.8,
         fillColor: getColor(feature.properties[glo.varMapeo]),
@@ -273,7 +227,6 @@ function getIDMunDpt(filterOferta) {
         idMun.push(value.properties.ID_DEPARTAMENTO + value.properties.ID_MUNICIPIO);
         idDepto.push(value.properties.ID_DEPARTAMENTO);
         value.properties.DPTOMUN = value.properties.ID_DEPARTAMENTO + value.properties.ID_MUNICIPIO;
-
     });
     
     var UniIdMun = idMun.unique();
@@ -284,20 +237,25 @@ function getIDMunDpt(filterOferta) {
     return idMunDpto;
 }
 
-function getJsonMunFil(idMun) {
-    var arraymun=[];
-    $.each(idMun, function (index, value) {
-        var filterOferta = turf.filter(glo.jsonMun, 'MPIO_CCNCT', value);
-        arraymun.push(JSON.parse(JSON.stringify(filterOferta.features[0])));
-    });
-    var fc = turf.featurecollection(arraymun);
-    return fc;
-}
 
-function clicklistaDptoMun(IdDptoMun) {
+
+function clicklistaDptoMun(IdDptoMun,escala,nombre) {
     $('#ListaCiudad .clearfix').removeClass('active');
-
     $('#DptoMun' + IdDptoMun).addClass('active');
+    console.log(IdDptoMun);
+    console.log(escala);
+    if (escala == 'Dpto') {
+        var json = getDtoGeo(IdDptoMun);
+        selAlfMun(json);
+    } else {
+        var value = [IdDptoMun];
+        var json = getJsonMunFil(value);
+        //console.log(json);
+        selAlfMun(json);
+    }
+    $('#searchCiudad').val(nombre);
+
+
 }
 function ListBusquedaMunDpto(fc) {
     var active = '';
@@ -309,7 +267,7 @@ function ListBusquedaMunDpto(fc) {
         glo.listDtoMun =
         glo.listDtoMun + '<li class="left">' +
         '<div id="DptoMun' + fc.properties.CODIGO_DEP +
-            '" class="clearfix ' + active + '" onclick="clicklistaDptoMun(\'' + fc.properties.CODIGO_DEP + '\')">' +
+            '" class="clearfix ' + active + '" onclick="clicklistaDptoMun(\'' + fc.properties.CODIGO_DEP + '\',\'Dpto\',\''+fc.properties.NOMBRE+'\')">' +
                 '<h5>' +fc.properties.NOMBRE
                 + '</h5>' +
             '</div>' +
@@ -319,7 +277,7 @@ function ListBusquedaMunDpto(fc) {
         glo.listDtoMun =
         glo.listDtoMun + '<li class="left">' +
         '<div id="DptoMun' + fc.properties.MPIO_CCNCT +
-            '" class="clearfix ' + active + '" onclick="clicklistaDptoMun(\'' + fc.properties.MPIO_CCNCT + '\')">' +
+            '" class="clearfix ' + active + '" onclick="clicklistaDptoMun(\'' + fc.properties.MPIO_CCNCT + '\',\'Mun\',\'' + fc.properties.MPIO_CNMBR + '\')">' +
                 '<h5>' + fc.properties.MPIO_CNMBR
                 + '</h5>' +
             '</div>' +
@@ -423,13 +381,13 @@ function calCentroid(geojson) {
     ProAct_sum = ProAct_sum.unique();
     glo.bubleMax = [];
     if (ProAct_sum.max()!= 0){ 
-        $('#selecBubles').append('<option value="ProAct_sum" >Oferta</option>');
+        $('#selecBubles').append('<option value="ProAct_sum">Oferta</option>');
         glo.bubleMax["ProAct_sum"] = ProAct_sum.max();
     }
     
     numEmp_sum = numEmp_sum.unique();    
     if (numEmp_sum.max() != 0) {
-        $('#selecBubles').append('<option value="numEmp_sum" >Numero de empleados </option>');
+        $('#selecBubles').append('<option value="numEmp_sum">Numero de empleados </option>');
         glo.bubleMax["numEmp_sum"] = numEmp_sum.max();
     }
 
@@ -437,25 +395,25 @@ function calCentroid(geojson) {
     console.log('Num_UPM');
     console.log(Num_UPM);
     if (Num_UPM.max() != 0) {
-        $('#selecBubles').append('<option value="Num_UPM" >Numero de UPM </option>');
+        $('#selecBubles').append('<option value="Num_UPM">Numero de UPM </option>');
         glo.bubleMax["Num_UPM"] = Num_UPM.max();
         console.log(glo.bubleMax["Num_UPM"]);
     }
     CosPro_avg = CosPro_avg.unique();    
     if (CosPro_avg.max() != 0) {
-        $('#selecBubles').append('<option value="CosPro_avg" >Costos promedio al anio de exploracion [$/unidad del mineral] </option>');
+        $('#selecBubles').append('<option value="CosPro_avg">Costo Prome. exploracion [$/' + glo.UniMate + ' año]  </option>');
         glo.bubleMax["CosPro_avg"] = CosPro_avg.max();
     }
 
     CosAgua_sum = CosAgua_sum.unique();    
     if (CosAgua_sum.max() != 0) {
-        $('#selecBubles').append('<option value="CosAgua_sum" > Consumo de agua [M3/años]</option>');
+        $('#selecBubles').append('<option value="CosAgua_sum">Consumo de agua [M3/año]</option>');
         glo.bubleMax["CosAgua_sum"] = CosAgua_sum.max();
     }
 
     ConEnergia_sum = ConEnergia_sum.unique();
     if (ConEnergia_sum.max() != 0) {
-        $('#selecBubles').append('<option value="ConEnergia_sum" >Consumo de energia electrica [kWH/ano] </option>');
+        $('#selecBubles').append('<option value="ConEnergia_sum">Consumo energia electrica[kWH/año] </option>');
         glo.bubleMax["ConEnergia_sum"] = ConEnergia_sum.max();
     }
 
@@ -464,26 +422,26 @@ function calCentroid(geojson) {
 }
 
 function calRadio(Arraycentroid) {
-
     var Buble = $('#selecBubles').val();
-    console.log(Buble);
-    console.log(glo.bubleMax);
     glo.maxDataCircle = glo.bubleMax[Buble];
-    $("#tituloBubbles").empty().append($('#selecBubles option:selected').text());
+    
+    if (glo.uniBuble != '') {
+        glo.uniBuble = '[' + glo.uniBuble + ']';
+    }
+    
+    $("#tituloBubbles").empty().append(glo.uniNombre);
+    $("#uniBubbles").empty().append(glo.uniBuble);
     $("#valuemin").empty().append('1 ' );
     $("#valuemax").empty().append(numeral(glo.maxDataCircle).format('0,0'));
     var pixel = 20;
-    console.log(glo.maxDataCircle);
     for (i = 0; i < Arraycentroid.features.length; i++) {
         Arraycentroid.features[i].properties.RADIO = ((Arraycentroid.features[i].properties[Buble] * pixel) / glo.maxDataCircle);
     }
-    console.log(Arraycentroid);
     return Arraycentroid;
 }
 
 
 function styleCircle(feature) {
-
     return {
         radius: feature.properties.RADIO,
         fillColor: "rgba(8,41,138,0.5)",
@@ -501,22 +459,23 @@ function addCentroid(Arraycentroid) {
     }
 
     glo.lyrMate = L.geoJson(Arraycentroid, {
-        /*onEachFeature: function (feature, layer) {
-            layer.on({
-            });
-        },*/
+        
         style: styleCircle,
         pointToLayer: function (feature, latlng) {
-            //console.log(feature.properties.RADIO);
             var circle = L.circleMarker(latlng, styleCircle);
-            /*var textlabel = '<center><b>DEMANDA</b></center>' +
-                '<h6>' + feature.properties["Nombre"] + '</h6>' +
-                '<small class="text-muted">Cantidad Demandada:</small> ' + numeral(feature.properties["DEMANDA_ANIO_" + glo.DEMANDA_ANIO]).format('0,0') + ' ' + glo.UniMate +
-                '<br><small class="text-muted">Cantidad Producida:</small> ' + numeral(feature.properties.ProMun).format('0,0') + ' ' + glo.UniMate;
-            dataGraficaDemanda.push(feature.properties["DEMANDA_ANIO_" + glo.DEMANDA_ANIO]);
-            dataGraficaProduccion.push(feature.properties.ProMun);
-            nomGraficaDemanda.push(feature.properties["Nombre"]);
-            circle.bindLabel(textlabel, { 'noHide': false });*/
+            console.log(feature);
+            var nombre='';
+            if (feature.properties.MPIO_CCNCT == undefined) {
+                nombre = feature.properties["NOMBRE"];
+            } else {
+                nombre = feature.properties.MPIO_CNMBR;
+            }
+
+            var textlabel = '<center><b><h5>' + nombre + '</h5></b></center>' +
+                '<small>' + glo.uniNombre + '</small>: ' +
+                numeral(feature.properties[$('#selecBubles').val()]).format('0,0') + ' ' + glo.uniBuble+
+                '<br><small class="text-muted">Identificado(a,os,as)por el estudio.</small>';
+            circle.bindLabel(textlabel, { 'noHide': false });
             return circle;
         }
     });
@@ -524,17 +483,41 @@ function addCentroid(Arraycentroid) {
 
    
 }
-$("#selecBubles").change(function () {
- if ($('#selecBubles').val() != '') {
+function generateBubble() {
+    if ($('#selecBubles').val() != '') {
         glo.Arraycentroid = calRadio(glo.Arraycentroid);
         addCentroid(glo.Arraycentroid)
         $('#LegendDemanda').show();
- } else {
-     if (map.hasLayer(glo.lyrMate)) {
-         map.removeLayer(glo.lyrMate);
-     }
-     $('#LegendDemanda').hide();
- }
+    } else {
+        if (map.hasLayer(glo.lyrMate)) {
+            map.removeLayer(glo.lyrMate);
+        }
+        $('#LegendDemanda').hide();
+    }
+}
+$("#selecBubles").change(function () {
+    var str = $('#selecBubles option:selected').text();
+    if (str.indexOf("[") > 0) {
+        var n1 = str.indexOf("[");
+        var n2 = str.indexOf("]");
+        var tmpUniMate = str.split('[');
+        if (n1 > 0) {
+            glo.uniNombre = tmpUniMate[0];
+            tmpUniMate = tmpUniMate[1].split(']');
+            glo.uniBuble=  tmpUniMate[0];
+        } else {
+            glo.uniNombre = tmpUniMate[0];
+            glo.uniBuble=  tmpUniMate[1];
+        }
+    }else{
+        glo.uniBuble = '';
+        glo.uniNombre = str;
+    }
+    
+    if (glo.uniNombre == 'Oferta') {
+        glo.uniBuble = glo.UniMate;
+    }
+    generateBubble();
 });
 function addOferta(filterOferta) {
     var aggregados = '';
@@ -549,19 +532,7 @@ function addOferta(filterOferta) {
         }).addTo(map);
         aggregados = calEstadisticasMun(glo.jsonMun, filterOferta, idMun, ['DPTOMUN', 'MPIO_CCNCT']);
         glo.Arraycentroid = calCentroid(aggregados);
-        $('#selecBubles').val('');
-        if (map.hasLayer(glo.lyrMate)) {
-            map.removeLayer(glo.lyrMate);
-        }
-        $('#LegendDemanda').hide();
-        if ($('#selecBubles').val() != '') {
-            glo.Arraycentroid = calRadio(glo.Arraycentroid);
-            addCentroid(glo.Arraycentroid)
-            $('#LegendDemanda').show();
-        } else {
-            $('#LegendDemanda').hide();
-        }
-        
+        generateBubble();
     } else if ($("#selecEscala").val() == "Departamento") {
         var idMunDpt = getIDMunDpt(filterOferta);
         var idDpto = idMunDpt[0];
@@ -570,20 +541,9 @@ function addOferta(filterOferta) {
         }).addTo(map);
         aggregados = calEstadisticasMun(glo.jsonDto, filterOferta, idDpto, ['ID_DEPARTAMENTO', 'CODIGO_DEP']);
         glo.Arraycentroid = calCentroid(aggregados);
-        $('#selecBubles').val('');
-        if (map.hasLayer(glo.lyrMate)) {
-            map.removeLayer(glo.lyrMate);
-        }
-        $('#LegendDemanda').hide();
-        if ($('#selecBubles').val() != '') {
-            glo.Arraycentroid = calRadio(glo.Arraycentroid);
-            addCentroid(glo.Arraycentroid)
-            $('#LegendDemanda').show();
-        } else {
-            $('#LegendDemanda').hide();            
-        }
+        generateBubble();
     }
-    
+    setParametroGrafica(aggregados);
     
     if (map.hasLayer(glo.lyrOferta)) {
         map.removeLayer(glo.lyrOferta);
@@ -599,14 +559,4 @@ function addOferta(filterOferta) {
     if (map.hasLayer(glo.lyrBaseMunDpto)) {
         glo.lyrBaseMunDpto.bringToBack();
     }
-    //controlcapas();
 }
-
-/*map.on('overlayadd', function (eventLayer) {
-    if (eventLayer.name === 'Demanda') {
-        glo.lyrMate.bringToFront();
-    }
-    if (eventLayer.name === 'Oferta' ) {
-        glo.lyrMate.bringToFront();
-    }
-});*/

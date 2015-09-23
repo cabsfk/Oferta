@@ -128,7 +128,9 @@ var glo = {
     listDtoMun: '',
     varMapeo: 'ProAct_sum',
     arrayHtmlEst:[],
-    bubleMax:[]
+    bubleMax:[],
+    uniBuble:'',
+    uniNombre:''
 }
 
 /***********************************
@@ -157,11 +159,12 @@ var pagina = document.URL.split("/");
 var prefijoUrl = pagina[0] + '/' + pagina[1] + '/' + pagina[2] + '/' + pagina[3];
 
 function getColor(d) {
-    return d >= glo.breaks[5] ? '#FC4E2A' :
+    return  d >= glo.breaks[6] ? '#BA391F' :
+            d >= glo.breaks[5] ? '#FC4E2A' :
             d >= glo.breaks[4] ? '#FD8D3C' :
             d >= glo.breaks[3] ? '#FEB24C' :
             d >= glo.breaks[2] ? '#FED976' :
-            d >= glo.breaks[1] ? '#FFEDA0' :
+            d >= glo.breaks[1] ? '#FFF8D2' :
               'rgba(255,255,255,0.8)';
 }
 
@@ -171,9 +174,10 @@ legend.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'info legend');
        
     div.innerHTML +=
-        '<div id="LegendDemanda"><svg height="100" width="160" >' +
+        '<div id="LegendDemanda"><svg height="100" width="182" >' +
         '<rect x="1" y="1" width="160" height="100" fill="rgba(220,220,220,0.3)" />'+
-        '<text x="5" y="15" fill="black"  font-weight = "bold" id="tituloBubbles"></text>'+
+            '<text x="0" y="15" fill="black"  font-weight = "bold" id="tituloBubbles"></text>' +
+            '<text x="0" y="30" fill="black"  id="uniBubbles"></text>' +
             '<circle cx="20" cy="60" r="5" stroke="white" stroke-width="3"  fill="rgba(8,41,138,0.5)" />' +
             '<circle cx="40" cy="60" r="10" stroke="white" stroke-width="3" fill="rgba(8,41,138,0.5)" />' +
             '<circle cx="70" cy="60" r="15" stroke="white" stroke-width="3" fill="rgba(8,41,138,0.5)" />' +
@@ -204,8 +208,7 @@ legend.onAdd = function (map) {
 
      }
      div.innerHTML += '</div><center><b>Convenciones</b></center>';
-
-     div.innerHTML += '<i ><img src="' + prefijoUrl + '/images/leyend/municipioSelecionado.png"  height="17px"></i>Municipio Seleccionado<br>';
+     div.innerHTML += '<i ><img src="' + prefijoUrl + '/images/leyend/municipioSelecionado.png"  height="17px"></i>' + $('#selecEscala  option:selected').text() + ' destacado<br>';
      return div;
     
 };
@@ -230,11 +233,7 @@ $("#BtnMonstrarConven").click(function () {
 });
 
 
-Array.prototype.unique = function (a) {
-    return function () { return this.filter(a) }
-}(function (a, b, c) {
-    return c.indexOf(a, b + 1) < 0
-});
+
 
 $('#PanelOfertaMap,#PanelProyOferta').css('height', ($(window).height() - 50) + 'px');
 $('#ListaEstudios').css('max-height', ($(window).height() - 250) + 'px');
@@ -246,6 +245,11 @@ $(window).resize(function () {
 });
 
 
+Array.prototype.unique = function (a) {
+    return function () { return this.filter(a) }
+}(function (a, b, c) {
+    return c.indexOf(a, b + 1) < 0
+});
 Array.prototype.max = function () {
     return Math.max.apply(null, this);
 };
@@ -253,6 +257,12 @@ Array.prototype.max = function () {
 Array.prototype.min = function () {
     return Math.min.apply(null, this);
 };
+function sortByKey(array, key) {
+    return array.sort(function (a, b) {
+        var x = a[key]; var y = b[key];
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
+}
 /*********************************
 //CAPAS BASE 
 **********************************/
@@ -438,7 +448,7 @@ $(function () {
         selectAllText: 'Todos',
         enableCaseInsensitiveFiltering: true,
         dropRight: false,
-        buttonWidth: '250px',
+        buttonWidth: '280px',
         
         filterPlaceholder: 'Buscar...',
         buttonText: function (options, select) {

@@ -31,7 +31,16 @@ function addAnios() {
     }
     
 }
+function getDtoGeo(Dpto) {
 
+    var filDpto = turf.filter(glo.jsonDto, 'CODIGO_DEP', Dpto);
+    if (filDpto.features.length > 0) {
+        return filDpto;
+    } else {
+        return "Revise cod Dept";
+    }
+
+}
 
 
 function getDto(Dpto) {
@@ -54,13 +63,26 @@ function getMunDto(Dpto, Mun) {
 }
 
 
-
+function getJsonMunFil(idMun) {
+    var arraymun = [];
+    $.each(idMun, function (index, value) {
+        var filterOferta = turf.filter(glo.jsonMun, 'MPIO_CCNCT', value);
+        arraymun.push(JSON.parse(JSON.stringify(filterOferta.features[0])));
+    });
+    var fc = turf.featurecollection(arraymun);
+    return fc;
+}
 
 
 function VerLegend() {
     glo.addlegend = true;
     legend.addTo(map);
     $("#UniOferta").empty().append('[' + glo.UniMate + ']');
+    if ($('#selecBubles').val() == "") {
+        $('#LegendDemanda').hide();
+    } else {
+        $('#LegendDemanda').show();
+    }
     /*
     $("#valuemin").empty().append('1 ' + glo.UniMate);
     $("#valuemax").empty().append(numeral(glo.maxDataCircle).format('0,0') + ' ' + glo.UniMate);
@@ -151,7 +173,7 @@ function CargaOfertaDemanda() {
             url: config.dominio + config.urlHostDataMA + 'MapServer/' + config.EP_OFERTA
         });
         queryOferta.where("1='1' and FK_ID_ESTUDIO=" + Estudio).returnGeometry(true).run(function (error, fCOferta) {
-            console.log(fCOferta);
+            
             $('#infoOferta').empty();
             if (fCOferta.features.length > 0) {
                 var i = 0, estudio = [];
@@ -179,8 +201,8 @@ function CargaOfertaDemanda() {
                 }
                 
 
-                //console.log("Unidad mate " + glo.UniMate);
-               
+                console.log(glo.Materiales);
+                $('#selecMineral').empty();
                 $("#selecMineral").append('<option value="' + glo.Materiales[0] + '" selected>' + glo.textMineral[glo.Materiales[0]] + '</option>');
                 $('#tituloMineral').empty().append(glo.textMineral[glo.Materiales[0]]);
                 $('#tituloEstudio').empty().append(glo.listEstudio[Estudio]);
@@ -251,7 +273,7 @@ function getDeptoSimp() {
             });
             
             styleEstudio(jsonEstudios.features[jsonEstudios.features.length - 1].properties.FK_ID_ESTUDIO);
-           // clicklistaestudio(jsonEstudios.features[jsonEstudios.features.length-1].properties.FK_ID_ESTUDIO);
+           
             CargaOfertaDemanda();
         });
     });
