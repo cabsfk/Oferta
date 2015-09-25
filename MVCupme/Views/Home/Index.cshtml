@@ -10,7 +10,7 @@
                 </span>
                 <input type="search" id="searchEstudio" value="" class="form-control" placeholder="Buscar Estudio...">
                 <span class="input-group-btn">
-                    <button class="btn btn-primary" type="button" >
+                    <button class="btn btn-primary" type="button" id="limpiarBusquedaEstudios">
                         <span class="glyphicon glyphicon-remove"></span>
                     </button>
                 </span>    
@@ -23,10 +23,11 @@
             </div>
         </div>
     </div>
-    <button type="button" class="btn btn-success btn-xs" id="BtnOcultarEstudios">
-        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-    </button>
-
+    <span class="input-group-btn" id="BtnOcultarEstudiosspan">
+        <button type="button" class="btn btn-primary" id="BtnOcultarEstudios" >
+            <span class="glyphicon glyphicon-chevron-left"></span>
+        </button>
+    </span>
 </div>
 <div id="PanelOfertaMap">
     <div id="map"></div>
@@ -96,13 +97,11 @@
                             </div>
                             <div class="panel panel-default" >
                                 <div class="panel-body">
-                                    <div class="form-group">
-                                        <label>Escala: </label>
-                                        <select class="form-control" id="selecEscala">
-                                            <option value="Departamento">Departamento</option>
-                                            <option value="Municipio">Ciudad</option>
-                                        </select>
-                                    </div>
+                                    <label>Escala: </label>
+                                    <select class="form-control" id="selecEscala">
+                                        <option value="Departamento">Departamento</option>
+                                        <option value="Municipio">Ciudad</option>
+                                    </select>
                                     <div class="input-group custom-search-form">
                                         <span class="input-group-btn">
                                             <button class="btn btn-default" type="button"  disabled>
@@ -124,7 +123,7 @@
                             </div>
                         </div>
                         <div role="tabpanel" class="tab-pane" id="TabGrfDemanda">
-                            <div id="GraficaGlobal" style="width: 320px; height: 300px; overflow-y: scroll; overflow-x:hidden "></div>
+                            <div id="GraficaGlobal" style="width: 320px; height: 380px; overflow-y: scroll; overflow-x:hidden "></div>
                         </div>
                         <div role="tabpanel" class="tab-pane" id="Busqueda">
                             <br>
@@ -149,10 +148,7 @@
                     </div>
                 </div>
             </div>
-            <div class="panel-footer">
-                <p class="text-danger" id="infoDemanda"></p>
-                <p class="text-danger" id="infoOferta"></p>
-            </div>
+       
         </div>
     </div>
 
@@ -239,8 +235,10 @@
             </a>
         </div><!--/myCarousel-->
     </div>
-    <div class='mouse-position'>
-        <b id='mousemove'><b />
+    <div class='mouse-position panel'>
+        <div class="panel-body">
+           <h6> <b id='mousemove'><b /></h6>
+        </div>
     </div>
 </div>
 @Scripts.Render("~/bundles/appMapGlobal")

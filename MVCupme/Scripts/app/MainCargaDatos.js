@@ -83,36 +83,8 @@ function VerLegend() {
     } else {
         $('#LegendDemanda').show();
     }
-    /*
-    $("#valuemin").empty().append('1 ' + glo.UniMate);
-    $("#valuemax").empty().append(numeral(glo.maxDataCircle).format('0,0') + ' ' + glo.UniMate);
-    
-    if (glo.Anio != 0) {
-        $('#LegendDemanda').show();
-    } else {
-        $('#LegendDemanda').hide();
-    }*/
 }
-/*
-function controlcapas() {
-    if (glo.lyrControl != '') {
-        map.removeControl(glo.lyrControl);
-    }
-    var overlayMaps;
-    if (glo.Anio != 0) {
-        overlayMaps = {
-            "Demanda": glo.lyrMate,
-            "Oferta": glo.lyrOferta
-        };
-    } else {
-        overlayMaps = {
-            "Oferta": glo.lyrOferta
-        };
-    }
 
-    glo.lyrControl = L.control.layers({}, overlayMaps);
-    map.addControl(glo.lyrControl);
-}*/
 
 function getUniMate(idUni) {
     var str = glo.textMineral[idUni];
@@ -195,6 +167,9 @@ function CargaOfertaDemanda() {
 
                     i++;
                 });
+               
+                fCOferta = turf.tag(fCOferta, glo.jsonMun, 'MPIO_CCNCT', 'DPTOMUN');
+               
                 glo.Materiales = arrayMi.unique();
                 if (glo.Materiales.length > 0) {
                     getUniMate(glo.Materiales[0]);
@@ -254,9 +229,9 @@ function getDeptoSimp() {
         }).fields(['FK_ID_ESTUDIO']).where("1=1").returnGeometry(false).orderBy('FK_ID_ESTUDIO');
         queryOfertaDist.params.returnDistinctValues = true;
         queryOfertaDist.run(function (error, jsonEstudios) {
-            console.log(jsonEstudios);
             
-            $.each(jsonEstudios.features.reverse(), function (index, value) {
+            $.each(jsonEstudios.features, function (index, value) {
+                //console.log(glo.arrayHtmlEst[value.properties.FK_ID_ESTUDIO]);
                 $("#ListaEstudios .chat").prepend(glo.arrayHtmlEst[value.properties.FK_ID_ESTUDIO]);
             });            
             
@@ -272,12 +247,10 @@ function getDeptoSimp() {
                 }
             });
             
-            styleEstudio(jsonEstudios.features[jsonEstudios.features.length - 1].properties.FK_ID_ESTUDIO);
-           
+            styleEstudio(glo.idEstudioIni);           
             CargaOfertaDemanda();
         });
     });
-}
     var queryDeptSimpli = L.esri.Tasks.query({
         url: config.dominio + config.urlHostDataMA + 'MapServer/' + config.DPTO_GEN
     });
@@ -286,8 +259,17 @@ function getDeptoSimp() {
            .orderBy(['CODIGO_DEP']);
     queryDeptSimpli.where("1=1").run(function (error, geojson) {
         glo.jsonDto = geojson;
-        
+
     });
+}
+    
+$('#limpiarBusquedaEstudios').click(function () {
+    $('#searchEstudio').focus().val('');
+    
+    var e = jQuery.Event("change");
+    $('#searchEstudio').trigger(e);
+    
+});
   
 
 

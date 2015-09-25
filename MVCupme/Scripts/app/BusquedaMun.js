@@ -93,6 +93,8 @@ $("#BtnBusquedaLimpiar").click(function (event) {
     $('#searchCiudad').val('');
     $('#ListaCiudad .clearfix').removeClass('active');
     $('#searchCiudad').focus();
+    var e = jQuery.Event("change");
+    $('#searchCiudad').trigger(e);
 });
 
 $("#BtnLimpiarMun").click(function (event) {

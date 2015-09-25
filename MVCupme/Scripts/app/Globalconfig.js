@@ -130,7 +130,8 @@ var glo = {
     arrayHtmlEst:[],
     bubleMax:[],
     uniBuble:'',
-    uniNombre:''
+    uniNombre: '',
+    idEstudioIni:''
 }
 
 /***********************************
@@ -194,21 +195,22 @@ legend.onAdd = function (map) {
      for (var i = 0; i < glo.breaks.length; i++) {
          if (i == 0) {
              div.innerHTML +=
-             '<i style="background:' + getColor(glo.breaks[i] + 1) + '"></i> ' +
-             numeral(glo.breaks[i]).format('0,0') + '&ndash;' + '<br>';
+             '<i style="background:' + getColor(glo.breaks[i] + 1) + '"></i><small> ' +
+             numeral(glo.breaks[i]).format('0,0') + '&ndash;' + '</small><br>';
          } else if (i ==(glo.breaks.length - 1)) {
              div.innerHTML +=
-            '<i style="background:' + getColor(glo.breaks[i] + 1) + '"></i> ' +  numeral(glo.breaks[i]).format('0,0') + ' +';
+            '<i style="background:' + getColor(glo.breaks[i] + 1) + '"></i><small> ' + numeral(glo.breaks[i]).format('0,0') + ' +</small><br>';
 
          } else {
              div.innerHTML +=
-             '<i style="background:' + getColor(glo.breaks[i] + 1) + '"></i> ' +
-             numeral(glo.breaks[i]).format('0,0') + (numeral(glo.breaks[i + 1]).format('0,0') ? '&ndash;' + numeral(glo.breaks[i + 1]).format('0,0') + '<br>' : '+');
+             '<i style="background:' + getColor(glo.breaks[i] + 1) + '"></i><small> ' +
+             numeral(glo.breaks[i]).format('0,0') + (numeral(glo.breaks[i + 1]).format('0,0') ? '&ndash;' + numeral(glo.breaks[i + 1]).format('0,0') + '<br>' : '+') + '</small>'
+             ;
          }
 
      }
      div.innerHTML += '</div><center><b>Convenciones</b></center>';
-     div.innerHTML += '<i ><img src="' + prefijoUrl + '/images/leyend/municipioSelecionado.png"  height="17px"></i>' + $('#selecEscala  option:selected').text() + ' destacado<br>';
+     div.innerHTML += '<i ><img src="' + prefijoUrl + '/images/leyend/municipioSelecionado.png"  height="17px"></i><h6>' + $('#selecEscala  option:selected').text() + ' destacado</h6>';
      return div;
     
 };
@@ -216,7 +218,7 @@ legend.onAdd = function (map) {
 var mousemove = document.getElementById('mousemove');
 
 map.on('mousemove', function (e) {
-    window[e.type].innerHTML = '<h5>LON:' + e.latlng.lng.toFixed(6) + '   LAT:' + e.latlng.lat.toFixed(6) + '</h5>';
+    window[e.type].innerHTML = 'Long:' + e.latlng.lng.toFixed(6) + '   Lat:' + e.latlng.lat.toFixed(6) ;
 });
 
 $("#BtnMonstrarConven").click(function () {
@@ -268,6 +270,7 @@ function sortByKey(array, key) {
 **********************************/
 
 // Activacion de carousel
+///iNICIO base layer
 $('.carousel').carousel({
     interval: 7000
 });
@@ -279,8 +282,8 @@ var OpenMapSurfer_Roads =  L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{t
 	subdomains: '1234'
 });
 
-var LyrBase = L.esri.basemapLayer('Imagery').addTo(map);;
-var LyrLabels;
+var LyrBase = L.esri.basemapLayer('Imagery').addTo(map);
+var LyrLabels = L.esri.basemapLayer('ImageryLabels').addTo(map);
 
 function setBasemap(basemap) {
     if (map.hasLayer(LyrBase)) {
@@ -292,6 +295,14 @@ function setBasemap(basemap) {
         LyrBase = OpenMapSurfer_Roads;
     }
     map.addLayer(LyrBase);
+    if (map.hasLayer(LyrLabels)) {
+        map.removeLayer(LyrLabels);
+    }
+
+    if (basemap === 'ShadedRelief' || basemap === 'Oceans' || basemap === 'Gray' || basemap === 'DarkGray' || basemap === 'Imagery' || basemap === 'Terrain') {
+        LyrLabels = L.esri.basemapLayer(basemap + 'Labels');
+        map.addLayer(LyrLabels);
+    }
     $(".esri-leaflet-logo").hide();
     $(".leaflet-control-attribution").hide();
 }
@@ -299,7 +310,7 @@ function setBasemap(basemap) {
 $("#BaseESRIStreets, #BaseESRISatellite, #BaseESRITopo, #BaseOSM").click(function () {
     setBasemap($(this).attr('value'));
 })
-
+///FIN base layer
 $(".esri-leaflet-logo").hide();
 $(".leaflet-control-attribution").hide();
 
@@ -362,7 +373,7 @@ query_Mineral.where("1='1'").returnGeometry(false).run(function (error, featureC
 $('#BtnOcultarEstudios').click(function () {
     if (glo.panelOferta) {
         $('#PanelProyOferta').css('width', '2%');
-        $('#PanelOfertaMap').css('width', '99%');
+        $('#PanelOfertaMap').css('width', '98%');
         $('#PanelOfertaMap').css('left', '2%');
         $('#panelEstudioslist').hide();
         $('#BtnOcultarEstudios').empty().append('<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>');
@@ -401,25 +412,36 @@ function clicklistaestudio(IdEstudio) {
 query_Estudio.where("1='1'").returnGeometry(false).run(function (error, featureCollection) {
     var data = [], data2 = [], active = '';
    // $("#selecEstudio").append('<option value="" > </option>');
-    $.each(featureCollection.features.reverse(), function (index, value) {
+    $.each(featureCollection.features, function (index, value) {
+        if (value.properties.NOMBRE.indexOf('[') >= 0) {
+            value.properties.VALIDACION = true;
+        } else {
+            value.properties.VALIDACION = false;
+        }
+    });
+    featureCollection = turf.filter(featureCollection, 'VALIDACION', true);
+    console.log(featureCollection);
+    $.each(featureCollection.features, function (index, value) {
         data[value.properties.ID_ESTUDIO] = value.properties.NOMBRE + ' ( ' + value.properties.ANIO + ' ) ';
-        data2[value.properties.ID_ESTUDIO] =  value.properties.ANIO ;
-        if ((featureCollection.features.length) == (index+1)) {
+        data2[value.properties.ID_ESTUDIO] = value.properties.ANIO;
+        console.log(index);
+        if ((featureCollection.features.length) == (index + 1)) {
+            glo.idEstudioIni = value.properties.ID_ESTUDIO;
             $("#selecEstudio").append('<option value="' + value.properties.ID_ESTUDIO + '" selected >' + value.properties.ID_ESTUDIO + '. ' + value.properties.NOMBRE.substring(0, 250) + '... ( ' + value.properties.ANIO + ' ) ' + '</option>');
             active = 'active';
             $('#tituloEstudio').empty().append(value.properties.ID_ESTUDIO + '. ' + value.properties.NOMBRE.substring(0, 250) + ' ( ' + value.properties.ANIO + ' ) ');
         } else {
             $("#selecEstudio").append('<option value="' + value.properties.ID_ESTUDIO + '" >' + value.properties.ID_ESTUDIO + '. ' + value.properties.NOMBRE.substring(0, 250) + '... ( ' + value.properties.ANIO + ' ) ' + '</option>');
         }
-        
-        glo.arrayHtmlEst[value.properties.ID_ESTUDIO] ='<li class="left">' +
-                       '<div id="Estudio' + value.properties.ID_ESTUDIO +
-                       '" class="clearfix ' + active + '" onclick="clicklistaestudio(' + value.properties.ID_ESTUDIO + ')">' +
-                           '<h5>' +
-                              value.properties.ID_ESTUDIO + '. ' + value.properties.NOMBRE + ' ( ' + value.properties.ANIO + ' ) '
-                                 + '</h5>' +
+
+        glo.arrayHtmlEst[value.properties.ID_ESTUDIO] = '<li class="left">' +
+                        '<div id="Estudio' + value.properties.ID_ESTUDIO +
+                        '" class="clearfix ' + active + '" onclick="clicklistaestudio(' + value.properties.ID_ESTUDIO + ')">' +
+                            '<h6 style="text-align:justify;">' + value.properties.NOMBRE + ' ( ' + value.properties.ANIO + ' ) '
+                                    + '</h6>' +
                         '</div>' +
-                  '</li>';
+                    '</li>';
+        console.log(glo.arrayHtmlEst[value.properties.ID_ESTUDIO]);
         active = '';
     });
     

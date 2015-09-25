@@ -20,6 +20,7 @@ function getParametroFilter() {
 }
 
 $("#selecMineral").change(function () {
+    
     getUniMate($("#selecMineral").val());
     $('#tituloMineral').empty().append(glo.textMineral[$("#selecMineral").val()]);
     getParametroFilter();
@@ -224,15 +225,22 @@ function getIDMunDpt(filterOferta) {
     var idMun = [],idDepto=[],idMunDpto=[];
     //console.log(filterOferta);
     $.each(filterOferta.features, function (index, value) {
-        idMun.push(value.properties.ID_DEPARTAMENTO + value.properties.ID_MUNICIPIO);
-        idDepto.push(value.properties.ID_DEPARTAMENTO);
-        value.properties.DPTOMUN = value.properties.ID_DEPARTAMENTO + value.properties.ID_MUNICIPIO;
+        console.log(value.properties.DPTOMUN);
+        if (value.properties.DPTOMUN !== undefined) {
+            value.properties.ID_DEPARTAMENTO = value.properties.DPTOMUN.substr(0, 2);
+            value.properties.ID_MUNICIPIO = value.properties.DPTOMUN.substr(2, 3);
+            idMun.push(value.properties.ID_DEPARTAMENTO + value.properties.ID_MUNICIPIO);
+            idDepto.push(value.properties.ID_DEPARTAMENTO);
+        }else{
+            value.properties.DPTOMUN = '00000';
+            value.properties.ID_DEPARTAMENTO = '00';
+            value.properties.ID_DEPARTAMENTO = '000';
+        }   
     });
+    //console.log(filterOferta);
     
     var UniIdMun = idMun.unique();
     var UniIdDeto = idDepto.unique();
-    //console.log(UniIdMun);
-    //console.log(UniIdDeto);
     idMunDpto = [UniIdDeto,UniIdMun];
     return idMunDpto;
 }
@@ -272,7 +280,6 @@ function ListBusquedaMunDpto(fc) {
                 + '</h5>' +
             '</div>' +
         '</li>';
-
     }else{
         glo.listDtoMun =
         glo.listDtoMun + '<li class="left">' +
@@ -392,8 +399,7 @@ function calCentroid(geojson) {
     }
 
     Num_UPM = Num_UPM.unique();
-    console.log('Num_UPM');
-    console.log(Num_UPM);
+  
     if (Num_UPM.max() != 0) {
         $('#selecBubles').append('<option value="Num_UPM">Numero de UPM </option>');
         glo.bubleMax["Num_UPM"] = Num_UPM.max();
@@ -539,6 +545,7 @@ function addOferta(filterOferta) {
         glo.lyrBaseMunDpto = L.geoJson(glo.jsonDto, {
             style: stylePoly
         }).addTo(map);
+        //console.log(filterOferta);
         aggregados = calEstadisticasMun(glo.jsonDto, filterOferta, idDpto, ['ID_DEPARTAMENTO', 'CODIGO_DEP']);
         glo.Arraycentroid = calCentroid(aggregados);
         generateBubble();
