@@ -498,7 +498,12 @@ label {
 
 }
 
-
+#tituloBubbles{
+    text-align:center;
+}
+#uniBubbles{
+    text-align:center;
+}
 
 #BtnOcultarEstudiosspan {
     position: absolute; 

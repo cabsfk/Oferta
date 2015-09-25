@@ -311,6 +311,8 @@ function calEstadisticasMun(polygons, points, vec,filtro) {
         filter.features[0].properties.CosPro_avg = aggregated.features[0].properties.CosPro_avg
         filter.features[0].properties.CosAgua_sum = aggregated.features[0].properties.CosAgua_sum
         filter.features[0].properties.ConEnergia_sum = aggregated.features[0].properties.ConEnergia_sum
+        filter.features[0].properties.AreaInter_sum = aggregated.features[0].properties.AreaInter_sum
+        
         arraymun.push(JSON.parse(JSON.stringify(filter.features[0])));
         //console.log(filter.features[0]);
         ListBusquedaMunDpto(filter.features[0]);
@@ -367,7 +369,7 @@ function calEstadisticasMun(polygons, points, vec,filtro) {
 
 function calCentroid(geojson) {
     var features = [], tmp;
-    var ProAct_sum = [], numEmp_sum = [], Num_UPM = [], CosPro_avg = [], CosAgua_sum = [], ConEnergia_sum = [];
+    var ProAct_sum = [], numEmp_sum = [], Num_UPM = [], CosPro_avg = [], CosAgua_sum = [], ConEnergia_sum = [],AreaInter_sum=[];
     
     for (i = 0; i < geojson.features.length; i++) {
         tmp = turf.centroid(geojson.features[i]);
@@ -378,6 +380,7 @@ function calCentroid(geojson) {
         CosPro_avg.push(geojson.features[i].properties.CosPro_avg);
         CosAgua_sum.push(geojson.features[i].properties.CosAgua_sum);
         ConEnergia_sum.push(geojson.features[i].properties.ConEnergia_sum);
+        AreaInter_sum.push(geojson.features[i].properties.AreaInter_sum);
         
         //tmp.properties.Nombre = getMunDto(geojson.features[i].properties.DEMANDANTE_DEPARTAMENTO, geojson.features[i].properties.DEMANDANTE_MUNICIPIO)
         features.push(tmp);
@@ -422,7 +425,13 @@ function calCentroid(geojson) {
         $('#selecBubles').append('<option value="ConEnergia_sum">Consumo energia electrica[kWH/año] </option>');
         glo.bubleMax["ConEnergia_sum"] = ConEnergia_sum.max();
     }
+    
 
+    AreaInter_sum = AreaInter_sum.unique();
+    if (AreaInter_sum.max() != 0) {
+        $('#selecBubles').append('<option value="AreaInter_sum">Area Intervenida[has2/año] </option>');
+        glo.bubleMax["AreaInter_sum"] = AreaInter_sum.max();
+    }
     Arraycentroid = turf.featurecollection(features);
     return Arraycentroid;
 }

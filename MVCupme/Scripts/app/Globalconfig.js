@@ -122,7 +122,13 @@ var glo = {
                 aggregation: 'sum',
                 inField: 'CONSUMO_ENERGIA',
                 outField: 'ConEnergia_sum'
+            },
+            {
+                aggregation: 'sum',
+                inField: 'AREA_INTERVENIDA',
+                outField: 'AreaInter_sum'
             }
+             
     ],
     panelOferta:true,
     listDtoMun: '',
@@ -175,17 +181,19 @@ legend.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'info legend');
        
     div.innerHTML +=
-        '<div id="LegendDemanda"><svg height="100" width="182" >' +
-        '<rect x="1" y="1" width="160" height="100" fill="rgba(220,220,220,0.3)" />'+
-            '<text x="0" y="15" fill="black"  font-weight = "bold" id="tituloBubbles"></text>' +
-            '<text x="0" y="30" fill="black"  id="uniBubbles"></text>' +
-            '<circle cx="20" cy="60" r="5" stroke="white" stroke-width="3"  fill="rgba(8,41,138,0.5)" />' +
-            '<circle cx="40" cy="60" r="10" stroke="white" stroke-width="3" fill="rgba(8,41,138,0.5)" />' +
-            '<circle cx="70" cy="60" r="15" stroke="white" stroke-width="3" fill="rgba(8,41,138,0.5)" />' +
-            '<circle cx="115" cy="60" r="20" stroke="white" stroke-width="3" fill="rgba(8,41,138,0.5)" />' +
-            '<text x="20" y="100" fill="black" id="valuemin">1</text>'+
-            '<text x="90" y="100" fill="black" id="valuemax"></text>'+
-            '</svg><hr></div>';
+        '<div id="LegendDemanda">'+
+        '<b><center><span id="tituloBubbles"></span></center>' +
+        '<center><span id="uniBubbles"></span></b></center>' +
+        '<svg height="50" width="150" >' +
+            '<rect x="1" y="1" width="140" height="50" fill="rgba(220,220,220,0.3)" />'+
+            '<circle cx="20" cy="30" r="5" stroke="white" stroke-width="3"  fill="rgba(8,41,138,0.5)" />' +
+            '<circle cx="40" cy="30" r="10" stroke="white" stroke-width="3" fill="rgba(8,41,138,0.5)" />' +
+            '<circle cx="70" cy="30" r="15" stroke="white" stroke-width="3" fill="rgba(8,41,138,0.5)" />' +
+            '<circle cx="115" cy="30" r="20" stroke="white" stroke-width="3" fill="rgba(8,41,138,0.5)" />' +
+         '</svg>' +
+         '<h5><b><span id="valuemin" class="pull-left">1</span>' +
+         '<span id="valuemax" class="pull-right"></span></b></h5>' +
+            '<hr></div>';
 
      labels = [];
 
