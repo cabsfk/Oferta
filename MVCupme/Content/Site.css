@@ -551,3 +551,12 @@ label {
 .mouse-position>.panel-body {
     padding: 1px;
 }
+
+
+
+#MostrarPanelForm {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	z-index:30;
+}

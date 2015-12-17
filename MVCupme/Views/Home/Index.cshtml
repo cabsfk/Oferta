@@ -43,10 +43,18 @@
        
         </div>
     </div>
+        <button type="button" class="btn btn-primary" id="MostrarPanelForm">
+            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+        </button>
+    
     <div class="col-sm-2 col-md-2" id="panel_formulario" style="max-width:400px;min-width:350px;">
         <div class="panel panel-primary">
             <div class="panel-heading">
-                <h3 class="panel-title"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Herramientas.</h3>
+                <h4 class="panel-title"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Herramientas.
+                    <span class="pull-right " id="OcultarPanelForm">
+                        <span><i class="glyphicon glyphicon-remove"></i></span>
+                    </span>
+                </h4>
             </div>
             <div class="panel-body">
                 <div>
@@ -90,7 +98,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Caracteristicas (Bubble): </label>
+                                <label>Variblables de Mapeo: </label>
                                 <select class="form-control" id="selecBubles">
                                     <option value="" selected>Ninguna </option>
                                 </select>

@@ -199,9 +199,7 @@ function CargaOfertaDemanda() {
                     VerLegend();
                     $('#LegendDemanda').hide();
                     waitingDialog.hide();
-                    
-
-                });
+               });
             } else {
                 $('#infoOferta').empty().append('No hay datos de OFERTA');
                 waitingDialog.hide();

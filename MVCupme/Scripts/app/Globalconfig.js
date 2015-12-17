@@ -430,22 +430,23 @@ query_Estudio.where("1='1'").returnGeometry(false).run(function (error, featureC
     featureCollection = turf.filter(featureCollection, 'VALIDACION', true);
     console.log(featureCollection);
     $.each(featureCollection.features, function (index, value) {
-        data[value.properties.ID_ESTUDIO] = value.properties.NOMBRE + ' ( ' + value.properties.ANIO + ' ) ';
+        var nom = value.properties.NOMBRE.split("]");
+        data[value.properties.ID_ESTUDIO] = nom[1] + ' ( ' + value.properties.ANIO + ' ) ';
         data2[value.properties.ID_ESTUDIO] = value.properties.ANIO;
         console.log(index);
         if ((featureCollection.features.length) == (index + 1)) {
             glo.idEstudioIni = value.properties.ID_ESTUDIO;
-            $("#selecEstudio").append('<option value="' + value.properties.ID_ESTUDIO + '" selected >' + value.properties.ID_ESTUDIO + '. ' + value.properties.NOMBRE.substring(0, 250) + '... ( ' + value.properties.ANIO + ' ) ' + '</option>');
+            $("#selecEstudio").append('<option value="' + value.properties.ID_ESTUDIO + '" selected >' + value.properties.ID_ESTUDIO + '. ' + nom[1].substring(0, 250) + '... ( ' + value.properties.ANIO + ' ) ' + '</option>');
             active = 'active';
-            $('#tituloEstudio').empty().append(value.properties.ID_ESTUDIO + '. ' + value.properties.NOMBRE.substring(0, 250) + ' ( ' + value.properties.ANIO + ' ) ');
+            $('#tituloEstudio').empty().append(value.properties.ID_ESTUDIO + '. ' + nom[1].substring(0, 250) + ' ( ' + value.properties.ANIO + ' ) ');
         } else {
-            $("#selecEstudio").append('<option value="' + value.properties.ID_ESTUDIO + '" >' + value.properties.ID_ESTUDIO + '. ' + value.properties.NOMBRE.substring(0, 250) + '... ( ' + value.properties.ANIO + ' ) ' + '</option>');
+            $("#selecEstudio").append('<option value="' + value.properties.ID_ESTUDIO + '" >' + value.properties.ID_ESTUDIO + '. ' + nom[1].substring(0, 250) + '... ( ' + value.properties.ANIO + ' ) ' + '</option>');
         }
 
         glo.arrayHtmlEst[value.properties.ID_ESTUDIO] = '<li class="left">' +
                         '<div id="Estudio' + value.properties.ID_ESTUDIO +
                         '" class="clearfix ' + active + '" onclick="clicklistaestudio(' + value.properties.ID_ESTUDIO + ')">' +
-                            '<h6 style="text-align:justify;">' + value.properties.NOMBRE + ' ( ' + value.properties.ANIO + ' ) '
+                            '<h6 style="text-align:justify;">' + nom[1] + ' ( ' + value.properties.ANIO + ' ) '
                                     + '</h6>' +
                         '</div>' +
                     '</li>';
@@ -522,4 +523,18 @@ BootstrapDialog.show({
             dialogRef.close();
         }
     }]
+});
+
+$("#MostrarPanelForm").hide();
+
+$("#OcultarPanelForm").click(function () {
+    $("#panel_formulario").hide(200, function () {
+        $("#MostrarPanelForm").show(200);
+    });
+});
+
+$("#MostrarPanelForm").click(function () {
+    $("#MostrarPanelForm").hide(200, function () {
+        $("#panel_formulario").show(200);
+    });
 });
